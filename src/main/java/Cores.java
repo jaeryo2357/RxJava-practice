@@ -1,6 +1,4 @@
-import io.reactivex.rxjava3.core.Flowable;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.observers.DisposableObserver;
+import io.reactivex.rxjava3.core.*;
 import io.reactivex.rxjava3.schedulers.Schedulers;
 
 import java.util.concurrent.TimeUnit;
@@ -11,18 +9,28 @@ public class Cores {
 
 
     public static void main(String[] args) {
+       //observable2();
        //observable();
-        observable2();
-//        flowable();
+        //flowable();
+    //    basicFlowable();
+       // single();
+       // completed();
+        maybe();
     }
 
     private static void observable() {
         Observable.range(1, 1000_000_000)
                 .map(x -> {
-                    System.out.println(Thread.currentThread().getName() + " sender Data:" + x);
+                    try {
+                        Thread.sleep(10L);
+                        System.out.println(Thread.currentThread().getName() + " sender Data:" + x);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     return x;
                 })
-                .observeOn(Schedulers.computation())
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.single())
                 .subscribe(next -> {
                     try {
                         Thread.sleep(1000L);
@@ -38,6 +46,12 @@ public class Cores {
 
         //observeOn에서 Worker 쓰레드로 선언안해줘서 sender가 1개만 됐음
         //3십몇만 까지 계속 sender함
+
+        try {
+            Thread.sleep(80000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void observable2() {
@@ -54,13 +68,18 @@ public class Cores {
 
     private static void flowable() {
         Flowable.range(1, 1000_000_000)
-                .delay(1000, TimeUnit.MILLISECONDS)
                 .onBackpressureBuffer()
                 .map(x -> {
-                    System.out.println(Thread.currentThread().getName() + " sender Data:" + x);
+                    try {
+                        Thread.sleep(10L);
+                        System.out.println(Thread.currentThread().getName() + " sender Data:" + x);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     return x;
                 })
-                .observeOn(Schedulers.computation())
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.single())
                 .subscribe(next -> {
                     try {
                         Thread.sleep(1000L);
@@ -80,5 +99,58 @@ public class Cores {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void basicFlowable() {
+        String[] strings = new String[]{"딸기", "소스", "치킨"};
+
+
+        Flowable.fromArray(strings)
+                .subscribe(next -> {
+                    System.out.println(Thread.currentThread().getName() + " onNext: " + next);
+                }, error -> {
+                    System.out.println(Thread.currentThread().getName() + " onError: " + error.getMessage());
+                }, () -> {
+                    System.out.println(Thread.currentThread().getName() + " onComplete");
+                });
+    }
+
+    private static void single() {
+        //Single.just("Hello", "RxJava") Error 발생
+        Single.just("Single RxJava")
+                .subscribe(success -> {
+                    System.out.println(Thread.currentThread().getName() + " onSuccess: " + success);
+                }, error -> {
+                    System.out.println(Thread.currentThread().getName() + " onError: " + error.getMessage());
+                });
+    }
+
+    private static void completed() {
+        Completable.complete()
+                .delay(1, TimeUnit.MILLISECONDS)
+                .subscribe(() -> {
+                    System.out.println(Thread.currentThread().getName() + " onCompleted");
+                }, error -> {
+                    System.out.println(Thread.currentThread().getName() + " onError: " + error.getMessage());
+                });
+
+        try {
+            Thread.sleep(5000);
+        }catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void maybe() {
+        Maybe.fromCallable(() -> {
+            String str = null;
+            return str;
+        }).subscribe(success -> {
+                    System.out.println(Thread.currentThread().getName() + " onSuccess: " + success);
+                }, error -> {
+                    System.out.println(Thread.currentThread().getName() + " onError: " + error.getMessage());
+                }, () -> {
+                    System.out.println(Thread.currentThread().getName() + " onCompleted");
+                } );
     }
 }
