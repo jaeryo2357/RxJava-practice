@@ -1,6 +1,8 @@
 import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.observables.ConnectableObservable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 import io.reactivex.rxjava3.subjects.AsyncSubject;
 import io.reactivex.rxjava3.subjects.BehaviorSubject;
 import io.reactivex.rxjava3.subjects.PublishSubject;
@@ -17,30 +19,41 @@ public class HotObservable {
      *
      */
     public static void main(String[] args) {
-        coldObservable();
+       // coldObservable();
        //asyncSubject();
 
        //behaviorSubject();
 
        //publishSubject();
-
-       // connectableObserable();
+       //replaySubject();
+        connectableObserable();
     }
 
     public static void coldObservable() {
         String[] strings = new String[]{"딸기", "소스", "치킨"};
 
 
-        Flowable<String> source  = Flowable.fromArray(strings);
+        Flowable<String> source  = Flowable.fromArray(strings).subscribeOn(Schedulers.computation()).observeOn(Schedulers.single());
 
         source.subscribe(next -> {
                     System.out.println(Thread.currentThread().getName() + " Subscriber # 1: " + next);
                 });
 
-        source.subscribe(next -> {
+        try {
             Thread.sleep(1000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        source.subscribe(next -> {
             System.out.println(Thread.currentThread().getName() + " Subscriber # 2: " + next);
         });
+
+        try {
+            Thread.sleep(1000L);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     //Hot Observable을 만드는 방법 중 하나인 Subject는 데이터를 발행하는 것과 구독하는 것을 모두 할 수 있다.
