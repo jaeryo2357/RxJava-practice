@@ -20,9 +20,9 @@ public class BasicOperator {
 
         //juniorFilter();
 
-        //basicReduce();
+        basicReduce();
 
-        test();
+        //test();
     }
 
     //map은 스케줄러를 지원하지 않아 현재 스레드에서 실행
@@ -97,7 +97,7 @@ public class BasicOperator {
         source.subscribe(data -> System.out.println("takeLast() value = " + data));
     }
 
-    //최종 결과물을 합성
+   //최종 결과물을 합성
     public static void basicReduce() {
         String[] balls = {"1", "3", "5"};
 
