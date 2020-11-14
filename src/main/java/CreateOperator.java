@@ -97,11 +97,13 @@ public class CreateOperator {
                 .subscribe(Log::it);
     }
 
+    //repeat()는 무한히 실행된다.
+    //보통은 30초 간격으로 서버의 ping 신호를 보내서 연결을 확인한다.
     public static void juniorRepeat() {
 
 //        Observable.timer(2, TimeUnit.SECONDS)
 //                .map(val -> "server URL")
-//                .map(OkHttpHeler::get)
+//                .map(OkHttpHelper::get)
 //                .repeat()
 //                .subscribe();
 //
